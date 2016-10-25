@@ -1,6 +1,6 @@
 var express = require("express");
 var app = express();
-app.use(express.static(__dirname + '/'));
+app.use(express.static(__dirname + '/www'));
 
 app.post("/", function(req, res) {
 	//Curl cmd should be: curl -X POST "localhost:8080/?sensorid=2&userid=4&data=allo"
