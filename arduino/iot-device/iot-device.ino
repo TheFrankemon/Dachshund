@@ -61,14 +61,11 @@ void disconnect_from_server() {
 
 // Make and send a HTTP POST request with the sensor_id, user_id and counter variables as parameters
 void post_to_server() {
-  char url[1024];
-  sprintf(url, "/?sensorid=%d&userid=%d&data=%d", sensor_id, user_id, counter); // URL parameters
-  char json[512];
-  sprintf(json, "{ “id” : “My IoT”, “datetime” : “2016-10-25 21:47:01”, “data” : { “sensor0” = %d, “sensor1” = %d, “sensor2” = %d } }", sensor_id, user_id, counter); // Constructed JSON
+  String json = "{ \"id\" : \"My IoT\", \"datetime\" : \"2016-10-25 21:47:01\", \"data\" : { \"sensor0\" : 6, \"sensor1\" : 5, \"sensor2\" : 4 }}"; // Constructed JSON
   
   // Make a HTTP POST request:
   client.print("POST ");
-  client.print(url);
+  client.print("/iot-device");
   client.println(" HTTP/1.1");
   client.print("Host: ");
   client.println(server_address);
@@ -76,9 +73,22 @@ void post_to_server() {
   client.println("Connection: close");
   client.println("Content-Type: application/json");
   client.print("Content-Length: ");
-  client.println(sizeof(json));
-  client.println();
+  client.println(json.length());
+  client.println();  
   client.println(json);
+
+  Serial.print("POST ");
+  Serial.print("/iot-device");
+  Serial.println(" HTTP/1.1");
+  Serial.print("Host: ");
+  Serial.println(server_address);
+  Serial.println("User-Agent: Arduino/1.0");
+  Serial.println("Connection: close");
+  Serial.println("Content-Type: application/json");
+  Serial.print("Content-Length: ");
+  Serial.println(json.length());
+  Serial.println();  
+  Serial.println(json);
 }
 
 // If there are incoming bytes available from the server, read them and print them
