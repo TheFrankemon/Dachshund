@@ -44,6 +44,8 @@ app.post("/iot-device", function(req, res) {
 		"data": data
 	});
 
+	saveDeviceAddress(iot_id, req.connection.remoteAddress, req.connection.remotePort);
+
 	res.send("Received your POST :)");
 })
 
@@ -52,6 +54,17 @@ io.on('connection', function(socket){
 });
 
 //Starts the server, it listens on port 8080
-var port = 8080;
-http.listen(port);
-console.log("Server running on:" + port);
+var serverPort = 8080;
+http.listen(serverPort);
+console.log("Server running on:" + serverPort);
+
+var iotDevices = {};
+
+function saveDeviceAddress(name, address, port) {
+	if (!iotDevices[name]) {
+		iotDevices[name] = {
+			"address": address,
+			"port": port
+		};
+	}
+}
