@@ -27,14 +27,14 @@ void setup() {
   Serial.print("Starting Ethernet connection...");
   
   // Start the Ethernet connection:
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
+//  if (Ethernet.begin(mac) == 0) {
+//    Serial.println("Failed to configure Ethernet using DHCP");
     // try to congifure using IP address instead of DHCP:
     Serial.println("Trying to connect with static IP...");
     Ethernet.begin(mac, ip);
-  } else {
+//  } else {
     Serial.println(" connected");
-  }
+//  }
   delay(1000); // give the Ethernet shield a second to initialize:
 }
 
@@ -63,6 +63,8 @@ void disconnect_from_server() {
 void post_to_server() {
   char url[1024];
   sprintf(url, "/?sensorid=%d&userid=%d&data=%d", sensor_id, user_id, counter); // URL parameters
+  char json[512];
+  sprintf(json, "{ “id” : “My IoT”, “datetime” : “2016-10-25 21:47:01”, “data” : { “sensor0” = %d, “sensor1” = %d, “sensor2” = %d } }", sensor_id, user_id, counter); // Constructed JSON
   
   // Make a HTTP POST request:
   client.print("POST ");
@@ -72,9 +74,11 @@ void post_to_server() {
   client.println(server_address);
   client.println("User-Agent: Arduino/1.0");
   client.println("Connection: close");
-  client.println("Content-Type: application/x-www-form-urlencoded");
-  client.println("Content-Length: 0");
+  client.println("Content-Type: application/json");
+  client.print("Content-Length: ");
+  client.println(sizeof(json));
   client.println();
+  client.println(json);
 }
 
 // If there are incoming bytes available from the server, read them and print them
