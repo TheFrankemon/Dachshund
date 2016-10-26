@@ -44,13 +44,17 @@ app.post("/iot-device", function(req, res) {
 		"data": data
 	});
 
-	saveDeviceAddress(iot_id, req.connection.remoteAddress, req.connection.remotePort);
+	updateDeviceTime(iot_id);
 
-	res.send("Received your POST :)");
+	res.send(iotDevicesTime[iot_id] + '');
 })
 
 io.on('connection', function(socket){
   console.log('a user connected');
+  socket.on('update time', function(deviceTime) {
+  	console.log("updating time");
+	updateDeviceTime(deviceTime.ID, deviceTime.time);
+  });
 });
 
 //Starts the server, it listens on port 8080
@@ -58,13 +62,12 @@ var serverPort = 8080;
 http.listen(serverPort);
 console.log("Server running on:" + serverPort);
 
-var iotDevices = {};
+var iotDevicesTime = {};
 
-function saveDeviceAddress(name, address, port) {
-	if (!iotDevices[name]) {
-		iotDevices[name] = {
-			"address": address,
-			"port": port
-		};
+function updateDeviceTime(name, time) {
+	if (time) {
+		iotDevicesTime[name] = time;
+	} else if (!iotDevicesTime[name]) {
+		iotDevicesTime[name] = 1000;
 	}
 }

@@ -11,8 +11,11 @@ app.controller('MainController', function($scope, socket) {
 		updateDeviceInfo(device);
 	});
 
-	function sendTime() {
-		console.log("Sending time to device");
+	function sendTime(id, time) {
+		socket.emit('update time', {
+			'ID': id,
+			'time': time
+		});
 	}
 
 	function updateDeviceInfo(receivedData) {
