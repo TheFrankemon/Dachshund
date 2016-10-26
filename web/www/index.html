@@ -5,11 +5,17 @@
 	<title>DACHSHUND</title>
 	<link rel="icon" type="image/png" href="favicon.png" sizes="32x32"/>
 	<script type="text/javascript" src="lib/angular.min.js"></script>
+	<script type="text/javascript" src="lib/socket.io.js"></script>
 </head>
+<!--<script type="text/javascript">
+	//var socket = io();
+	//var socket = io.connect('http://localhost:8080', { 'forceNew': true });
+</script>-->
 <body>
-<div ng-app="dachshund">
+<div ng-app="dachshund" ng-controller="MainController">
  	<p>Name: <input type="text" ng-model="name"></p>
  	<p ng-bind="name"></p>
+ 	<h1 ng-model="data"/>
 </div>
 <script type="text/javascript" src="app.js"></script>
 </body>

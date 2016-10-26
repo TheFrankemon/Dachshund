@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/francomontiel/Dachshund/issues"
   },
-  "homepage": "https://github.com/francomontiel/Dachshund#readme"
+  "homepage": "https://github.com/francomontiel/Dachshund#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "socket.io": "^1.5.1"
+  }
 }
