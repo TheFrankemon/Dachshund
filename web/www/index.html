@@ -6,18 +6,18 @@
 	<link rel="icon" type="image/png" href="favicon.png" sizes="32x32"/>
 	<script type="text/javascript" src="lib/angular.min.js"></script>
 	<script type="text/javascript" src="lib/socket.io.js"></script>
+	<!--<script type="text/javascript" src="lib/plotly-latest.min.js"></script>-->
+	<script src="node_modules/chart.js/dist/Chart.min.js"></script>
+	<script src="node_modules/angular-chart.js/dist/angular-chart.min.js"></script>
 </head>
-<!--<script type="text/javascript">
-	//var socket = io();
-	//var socket = io.connect('http://localhost:8080', { 'forceNew': true });
-</script>-->
 <body ng-app="dachshund">
 <section ng-controller="MainController">
 	<div ng-repeat="device in devices">
  		<h1>{{ device.ID }}</h1>
  		<p>{{ device.data }}</p>
  		<input type="text" ng-model="device.timeToWait"></input>
- 		<button type="" ng-click="sendTime()">Ok</button>
+ 		<button ng-click="sendTime(device.ID, device.timeToWait)">Ok</button>
+ 		<div><canvas id="line" class="chart chart-line" chart-data="device.data" chart-labels="device.labels" chart-series="device.series" chart-dataset-override="chartDatasetOverride" chart-click="chartOnClick"></canvas></div>
  	</div>
 </section>
 <script type="text/javascript" src="app.js"></script>
