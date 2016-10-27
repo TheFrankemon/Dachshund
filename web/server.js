@@ -5,6 +5,7 @@ var io = require("socket.io")(http);
 var bodyParser = require('body-parser');
 
 app.use(express.static(__dirname + '/www'));
+app.use('/node_modules', express.static(__dirname + '/node_modules'));
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -41,7 +42,8 @@ app.post("/iot-device", function(req, res) {
 
 	io.emit("device data", {
 		"ID": iot_id,
-		"data": data
+		"datetime": req.body.datetime,
+		"data": req.body.data
 	});
 
 	updateDeviceTime(iot_id);
