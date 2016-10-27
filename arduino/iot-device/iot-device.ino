@@ -7,15 +7,18 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xED }; // MAC address of the contr
 IPAddress ip(192, 168, 24, 38); // Static IP address to use if the DHCP fails to assign
 EthernetClient client; // Initialize the Ethernet client library. Client that will connect to the server
 
-// Data to send to the server
-int counter = 0;
-int sensor_id = 1;
-int user_id = 5;
-
-int connected_to_server = 0; // 1 if client connected to the server successfully, else 0
-
 char server_address[100]; // Address of the server to connect
 int server_port; // Port of the server to connect
+
+// Data to send to the server
+int sensor0;
+int sensor1;
+int sensor2;
+
+int connected_to_server = 0; // 1 if client connected to the server successfully, else 0
+int TTS = 1000;
+
+String res_param;
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -61,7 +64,17 @@ void disconnect_from_server() {
 
 // Make and send a HTTP POST request with the sensor_id, user_id and counter variables as parameters
 void post_to_server() {
-  String json = "{ \"id\" : \"My IoT\", \"datetime\" : \"2016-10-25 21:47:01\", \"data\" : { \"sensor0\" : 6, \"sensor1\" : 5, \"sensor2\" : 4 }}"; // Constructed JSON
+  sensor0 = random(-20,21) * 5;
+  sensor1 = random(-20,21) * 5;
+  sensor2 = random(-20,21) * 5;
+  // JSON construction
+  String json = "{ \"id\" : \"My IoT\", \"datetime\" : \"2016-10-25 21:47:01\", \"data\" : { \"sensor0\" : ";
+  json.concat(sensor0);
+  json.concat(", \"sensor1\" : ");
+  json.concat(sensor1);
+  json.concat(", \"sensor2\" : ");
+  json.concat(sensor2);
+  json.concat(" }}");
   
   // Make a HTTP POST request:
   client.print("POST ");
@@ -93,10 +106,32 @@ void post_to_server() {
 
 // If there are incoming bytes available from the server, read them and print them
 void receive_from_server() {
-  while (client.available()) {
-    char c = client.read();
-    Serial.print(c);
+  char temp;
+  bool flag = true;
+  while ((client.available()) && flag) {
+    char c1 = client.read();
+    //Serial.print(c1);
+    if ((temp == '\n') && (c1 == '\r')) {
+      parse_body();
+      !flag;
+    } else {
+      temp = c1;
+    }
   }
+}
+
+void parse_body() {
+  char c;
+  res_param = "";
+  while(client.available()) {
+    c = client.read();
+    if (!(c == '\n')) {
+      Serial.print(c);
+      res_param.concat(c);
+    }
+  }
+  Serial.println();
+  Serial.println(res_param);
 }
 
 // Read serial input for server address and port
@@ -135,8 +170,7 @@ void loop() {
     receive_from_server();
     
     // Increase the counter and wait a second
-    counter++;
-    delay(1000);
+    delay(TTS);
   } else { // If the server's not connected, wait for serial input for server address and port
     if (Serial.available()> 0) {
       read_server_info();
