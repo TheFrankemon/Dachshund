@@ -5,12 +5,32 @@ app.controller('MainController', function($scope, socket) {
 	$scope.sendTime = sendTime;
 
 	$scope.chartOnClick = chartOnClick;
-	$scope.chartDatasetOverride = [{
-        borderWidth: 3,
-        hoverBackgroundColor: "rgba(255,99,132,0.4)",
-        hoverBorderColor: "rgba(255,99,132,1)",
-        type: 'line'
-  	}];
+  	$scope.chartOptions = {
+  		animation: false,
+  		responsive: true,
+  		scales: {
+            xAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Datetime'
+                }
+            }],
+            yAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Value'
+                }
+            }]
+        }
+  	}
+
+  	var defaultDashedDatasetOverride = {
+        type: 'line',
+        fill: false
+        //borderDash: [5, 5]
+  	};
 
 	socket.on('device data', function(device) {
 		console.log(device);
@@ -44,6 +64,7 @@ app.controller('MainController', function($scope, socket) {
 				for (var key in receivedData.data) {
 					if (device.series.indexOf(key) == -1) {
 						device.series.push(key);
+						device.datasetOverride.push(defaultDashedDatasetOverride);
 						device.data.push(fill_elements);
 					}
 				}
@@ -61,27 +82,27 @@ app.controller('MainController', function($scope, socket) {
 		}
 
 		if (!found) {
-			var new_device = {
+			var newDevice = {
 				ID: receivedData.ID,
 				timeToWait: 1000,
 				labels: [receivedData.datetime],
 				series: [],
-				data: []
+				data: [],
+				datasetOverride: []
 			}
 			for (var key in receivedData.data) {
-				new_device.series.push(key);
-				new_device.data.push([receivedData.data[key]]);
+				newDevice.series.push(key);
+				newDevice.datasetOverride.push(defaultDashedDatasetOverride);
+				newDevice.data.push([receivedData.data[key]]);
 			}
-			$scope.devices.push(new_device);
-			console.log(new_device);
+			$scope.devices.push(newDevice);
+			//console.log(new_device);
 		}
 	}
 
 	function chartOnClick(points, evt) {
 	    console.log(points, evt);
 	};
-
-	
 });
 
 app.factory('socket', ['$rootScope', function ($rootScope) {
