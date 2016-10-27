@@ -2,6 +2,8 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include <Time.h>
+#include <TimeLib.h>
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xED }; // MAC address of the controller
 IPAddress ip(192, 168, 24, 38); // Static IP address to use if the DHCP fails to assign
@@ -64,17 +66,7 @@ void disconnect_from_server() {
 
 // Make and send a HTTP POST request with the sensor_id, user_id and counter variables as parameters
 void post_to_server() {
-  sensor0 = random(-20,21) * 5;
-  sensor1 = random(-20,21) * 5;
-  sensor2 = random(-20,21) * 5;
-  // JSON construction
-  String json = "{ \"id\" : \"My IoT\", \"datetime\" : \"2016-10-25 21:47:01\", \"data\" : { \"sensor0\" : ";
-  json.concat(sensor0);
-  json.concat(", \"sensor1\" : ");
-  json.concat(sensor1);
-  json.concat(", \"sensor2\" : ");
-  json.concat(sensor2);
-  json.concat(" }}");
+  String json = build_json();
   
   // Make a HTTP POST request:
   client.print("POST ");
@@ -104,6 +96,35 @@ void post_to_server() {
   Serial.println(json);
 }
 
+String build_json() {
+  String js;
+  time_t T = now();
+  sensor0 = random(-20,21) * 5;
+  sensor1 = random(-20,21) * 5;
+  sensor2 = random(-20,21) * 5;
+  // JSON construction
+  js = "{ \"id\" : \"My IoT\", \"datetime\" : \"";
+  js.concat(year(T));
+  js.concat("-");
+  js.concat(month(T));
+  js.concat("-");
+  js.concat(day(T));
+  js.concat(" ");
+  js.concat(hour(T));
+  js.concat(":");
+  js.concat(minute(T));
+  js.concat(":");
+  js.concat(second(T));
+  js.concat("\", \"data\" : { \"sensor0\" : ");
+  js.concat(sensor0);
+  js.concat(", \"sensor1\" : ");
+  js.concat(sensor1);
+  js.concat(", \"sensor2\" : ");
+  js.concat(sensor2);
+  js.concat(" }}");
+  return js;
+}
+
 // If there are incoming bytes available from the server, read them and print them
 void receive_from_server() {
   char temp;
@@ -120,6 +141,7 @@ void receive_from_server() {
   }
 }
 
+//Obtains the body from server's response to update the TTS
 void parse_body() {
   char c;
   res_param = "";
@@ -132,6 +154,7 @@ void parse_body() {
   }
   Serial.println();
   Serial.println(res_param);
+  TTS = res_param.toInt();
 }
 
 // Read serial input for server address and port
