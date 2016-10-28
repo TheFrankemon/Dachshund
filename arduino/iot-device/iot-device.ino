@@ -153,7 +153,9 @@ void parse_body() {
   }
   Serial.println();
   Serial.println(res_param);
-  TTS = res_param.toInt();
+  if (res_param.length() > 0) {
+    TTS = res_param.toInt();
+  }
 }
 
 // Read serial input for server address and port
