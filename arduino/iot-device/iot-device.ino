@@ -5,48 +5,45 @@
 #include <Time.h>
 #include <TimeLib.h>
 
-byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xED }; // MAC address of the controller
-IPAddress ip(192, 168, 24, 38); // Static IP address to use if the DHCP fails to assign
-EthernetClient client; // Initialize the Ethernet client library. Client that will connect to the server
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xED }; // MAC address of the Arduino
+IPAddress ip(192, 168, 24, 38); // Static IP address to use if the DHCP fails to assign an IP
+EthernetClient client; // Client that connects to the server
 
-char server_address[100]; // Address of the server to connect
-int server_port; // Port of the server to connect
+char server_address[100]; // Input Address of the server to connect
+int server_port; // Input Port of the server to connect
 
-// Data to send to the server
+// Data to send to the server as hypothetic sensor values.
 int sensor0;
 int sensor1;
 int sensor2;
 
-int connected_to_server = 0; // 1 if client connected to the server successfully, else 0
-int TTS = 1000;
-
-String res_param;
+int connected_to_server = 0; // 1 if the client connected successfully to the server, otherwise 0
+int TTS = 1000; //Time To Send. Time interval between data sent to the server
+String res_param; //Body recieved from the server as response, optionaly it carries a value that modifies the TTS
 
 void setup() {
-  // Open serial communications and wait for port to open:
+  // Open serial communications and wait for port to open
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  Serial.print("Starting Ethernet connection...");
+  Serial.println("Starting Ethernet connection...");
   
-  // Start the Ethernet connection:
-//  if (Ethernet.begin(mac) == 0) {
-//    Serial.println("Failed to configure Ethernet using DHCP");
-    // try to congifure using IP address instead of DHCP:
-    Serial.println("Trying to connect with static IP...");
+  // Start the Ethernet connection with DHCP.  If it fails, connect with an static IP address.
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    Serial.println("Trying to connect with static IP..."); 
     Ethernet.begin(mac, ip);
-//  } else {
+  } else {
     Serial.println(" connected");
-//  }
-  delay(1000); // give the Ethernet shield a second to initialize:
+  }
+  delay(1000); // give the Ethernet shield a second to initialize.
 }
 
 // Try to connect to a server with a given address and port
 int connect_to(char address[], int port) {
   Serial.println("connecting...");
-  // if you get a connection, report back via serial:
   if (client.connect(address, port)) {
     Serial.println("connected");
     connected_to_server = 1;
@@ -57,14 +54,15 @@ int connect_to(char address[], int port) {
   return connected_to_server;
 }
 
-// Stop the current ethernet client and change connected_to_server to 0
+// Stop the current Ethernet client
 void disconnect_from_server() {
   Serial.println();
   Serial.println("disconnecting.");
+  connected_to_server = 0;
   client.stop();
 }
 
-// Make and send a HTTP POST request with the sensor_id, user_id and counter variables as parameters
+// Send and print a HTTP POST request with the sensor values
 void post_to_server() {
   String json = build_json();
   
@@ -96,6 +94,8 @@ void post_to_server() {
   Serial.println(json);
 }
 
+// Build an JSON string to be sent in the body of the HTTP POST request,
+// Based on a format given: { “id” : “IOT_NAME“, “datetime” : “YYY-MM-DD HH:MM:SS”, “data” : {“sensor0” = XX , “sensor1” = XX, “sensor1” = XX}}
 String build_json() {
   String js;
   time_t T = now();
@@ -125,13 +125,12 @@ String build_json() {
   return js;
 }
 
-// If there are incoming bytes available from the server, read them and print them
+// Read data sent from the server. Obtain the body from it and parse it.
 void receive_from_server() {
   char temp;
   bool flag = true;
   while ((client.available()) && flag) {
     char c1 = client.read();
-    //Serial.print(c1);
     if ((temp == '\n') && (c1 == '\r')) {
       parse_body();
       !flag;
@@ -141,7 +140,7 @@ void receive_from_server() {
   }
 }
 
-//Obtains the body from server's response to update the TTS
+//Parses the body from server's response to update the TTS
 void parse_body() {
   char c;
   res_param = "";
@@ -180,21 +179,24 @@ void read_server_info() {
 }
 
 void loop() {
-  if (connected_to_server) { // If the server's connected, handle incoming bytes, send a POST request and increase the counter
+  // If the server is connected, send sensor data in POST requests and handle incoming data
+  if (connected_to_server) {
     receive_from_server();
-  
-    if (!client.connected()) { // If the server's disconnected, stop the client
+
+    // If the server's disconnected, stop the client
+    if (!client.connected()) {
       disconnect_from_server();
       connect_to(server_address, server_port);
     }
 
-    // send a POST request and handle incoming bytes
+    // send a POST request and handle incoming data
     post_to_server();
     receive_from_server();
     
-    // Increase the counter and wait a second
+    // Modify the TTS if requested, otherwise 1000 ms
     delay(TTS);
-  } else { // If the server's not connected, wait for serial input for server address and port
+  } else {
+    // If the server's not connected, wait for serial input for server address and port
     if (Serial.available()> 0) {
       read_server_info();
     }
