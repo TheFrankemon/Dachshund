@@ -19,7 +19,8 @@
 		font-family: Roboto;
 		background-image: url("http://i.imgur.com/GBvXLvM.png");
 		background-size: 100% auto;
-		background-position: 0% 12%;
+		background-position: 0% 0%;
+		background-attachment: fixed;
 	}
 	h1 {
 		margin-top: -1%;
@@ -29,25 +30,28 @@
 		margin-top: -1%;
 	}
 	#line {
-		max-height: 400px;
+		margin-top: 20px;
+	}
+	.device-info {
+		background-color: rgba(255, 255, 255, 0.7);
 		max-width: 800px;
+		margin-bottom: 50px;
 	}
 	</style>
 	<script type="text/javascript" src="lib/angular.min.js"></script>
 	<script type="text/javascript" src="lib/socket.io.js"></script>
-	<!--<script type="text/javascript" src="lib/plotly-latest.min.js"></script>-->
 	<script src="node_modules/chart.js/dist/Chart.min.js"></script>
 	<script src="node_modules/angular-chart.js/dist/angular-chart.min.js"></script>
 </head>
 <body ng-app="dachshund">
 <h1>Dachshund.</h1>
 <section ng-controller="MainController">
-	<div ng-repeat="device in devices">
+	<div ng-repeat="device in devices" class="device-info">
  		<h2>{{ device.ID }}</h2>
- 		<p>{{ device.data }}</p>
+ 		<!--<p>{{ device.data }}</p>-->
  		<input type="text" ng-model="device.timeToWait"></input>
  		<button ng-click="sendTime(device.ID, device.timeToWait)">Ok</button>
- 		<div><canvas id="line" class="chart chart-line" chart-data="device.data" chart-labels="device.labels" chart-series="device.series" chart-dataset-override="device.datasetOverride" chart-click="chartOnClick" chart-options="chartOptions"></canvas></div>
+ 		<div><canvas id="line" class="chart chart-line" chart-data="device.data" chart-labels="device.labels" chart-series="device.series" chart-dataset-override="device.datasetOverride" chart-options="chartOptions"></canvas></div>
  	</div>
 </section>
 <script type="text/javascript" src="app.js"></script>
