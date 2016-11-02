@@ -11,6 +11,10 @@ app.use('/node_modules', express.static(__dirname + '/node_modules')); // path u
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
+app.get('/', function(req, res) {
+	res.sendFile(path.join(__dirname + '/www/index.html'));
+});
+
 // Callback function when a HTTP POST method is requested, in the path '/iot-device'
 // Converts iot-device received data to a format understood by the web client
 app.post("/iot-device", function(req, res) {
