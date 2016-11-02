@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
 
 // Callback function when a HTTP POST method is requested, in the path '/iot-device'
 // Converts iot-device received data to a format understood by the web client
-app.post("/iot-device", function(req, res) {
+app.post("/", function(req, res) {
 	console.log("Receiving device data...")
 	console.log(req.body);
 	/*var iot_id = req.body.id;
@@ -71,6 +71,6 @@ function updateDeviceTime(id, time) {
 }
 
 //Starts the server, it listens on port 8080
-var serverPort = 8080;
+var serverPort = 3000;
 http.listen(serverPort);
 console.log("Server running on: " + serverPort);
