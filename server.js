@@ -71,6 +71,6 @@ function updateDeviceTime(id, time) {
 }
 
 //Starts the server, it listens on port 8080
-var serverPort = 3000;
+var serverPort = process.env.port || 3000;
 http.listen(serverPort);
 console.log("Server running on: " + serverPort);
